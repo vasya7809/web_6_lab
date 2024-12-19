@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Динамічна таблиця з API</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Динамічна таблиця з API</h1>
+    <button id="loadDataBtn">Оновити дані</button>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Ім'я <button id="sortNameBtn">Сортувати за іменем</button></th>
+                <th>Фракція <button id="sortAffiliationBtn">Сортувати за фракцією</button></th>
+                <th>Ранг</th>
+                <th>Локація</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Дані будуть додаватися сюди -->
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            // Завантаження даних при завантаженні сторінки
+            loadData();
+
+            // Функція для завантаження даних
+            function loadData() {
+                $.get('http://lab.vntu.org/api-server/lab7.php', function (data) {
+                    if (Array.isArray(data)) {
+                        // Очищаємо таблицю перед додаванням нових даних
+                        $('#dataTable tbody').empty();
+
+                        // Додаємо дані в таблицю
+                        data.forEach(function (item) {
+                            $('#dataTable tbody').append(`
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td>${item.affiliation}</td>
+                                    <td>${item.rank}</td>
+                                    <td>${item.location}</td>
+                                </tr>
+                            `);
+                        });
+                    }
+                });
+            }
+
+            // Оновлення таблиці при натисканні кнопки
+            $('#loadDataBtn').click(function () {
+                loadData();
+            });
+
+            // Сортування таблиці за іменем
+            $('#sortNameBtn').click(function () {
+                let rows = $('#dataTable tbody tr').get();
+
+                rows.sort(function (a, b) {
+                    let nameA = $(a).children('td').eq(0).text().toUpperCase();
+                    let nameB = $(b).children('td').eq(0).text().toUpperCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                // Оновлюємо таблицю після сортування
+                $.each(rows, function (index, row) {
+                    $('#dataTable tbody').append(row);
+                });
+            });
+
+            // Сортування таблиці за фракцією
+            $('#sortAffiliationBtn').click(function () {
+                let rows = $('#dataTable tbody tr').get();
+
+                rows.sort(function (a, b) {
+                    let affiliationA = $(a).children('td').eq(1).text().toUpperCase();
+                    let affiliationB = $(b).children('td').eq(1).text().toUpperCase();
+                    return affiliationA.localeCompare(affiliationB);
+                });
+
+                // Оновлюємо таблицю після сортування
+                $.each(rows, function (index, row) {
+                    $('#dataTable tbody').append(row);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
